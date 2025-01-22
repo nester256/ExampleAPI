@@ -1,22 +1,4 @@
-version: '3.9'
-
 services:
-#  nginx:
-#    build:
-#      dockerfile: nginx/Dockerfile
-#      context: .
-#    ports:
-#      - "81:80"
-#    depends_on:
-#      - web
-#    healthcheck:
-#      test: [ "CMD", "curl", "-f", "http://localhost:80" ]
-#      interval: 10s
-#      timeout: 3s
-#      retries: 3
-#      start_period: 5s
-#    networks:
-#      - base_network
   nginx:
     build:
       dockerfile: nginx/Dockerfile
@@ -25,6 +7,12 @@ services:
       - "81:80"
     depends_on:
       - web
+    healthcheck:
+          test: [ "CMD", "curl", "-f", "http://localhost:81" ]
+          interval: 10s
+          timeout: 3s
+          retries: 3
+          start_period: 5s
     networks:
       - base_network
 
