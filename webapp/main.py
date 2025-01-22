@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.responses import ORJSONResponse
 from webapp.api.base.router import base_router
 from webapp.integrations.metrics.metrics import metrics
 from webapp.integrations.middleware.middleware import LogServerMiddleware, prometheus_metrics
@@ -32,7 +32,7 @@ def setup_routers(app: FastAPI) -> None:
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(docs_url='/swagger')
+    app = FastAPI(docs_url='/swagger', default_response_class=ORJSONResponse)
     setup_middleware(app)
     setup_routers(app)
     return app
