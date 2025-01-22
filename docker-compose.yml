@@ -1,0 +1,82 @@
+version: '3.9'
+
+services:
+#  nginx:
+#    build:
+#      dockerfile: nginx/Dockerfile
+#      context: .
+#    ports:
+#      - "81:80"
+#    depends_on:
+#      - web
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://localhost:80" ]
+#      interval: 10s
+#      timeout: 3s
+#      retries: 3
+#      start_period: 5s
+#    networks:
+#      - base_network
+  nginx:
+    build:
+      dockerfile: nginx/Dockerfile
+      context: .
+    ports:
+      - "81:80"
+    depends_on:
+      - web
+    networks:
+      - base_network
+
+  web:
+    container_name: web
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+#    ports:
+#      - "8000:8000"
+    command: scripts/startup.sh -m -l
+    restart: on-failure
+    env_file:
+      - ./conf/.env
+    volumes:
+      - .:/code
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl -f http://localhost:8000/swagger || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - base_network
+
+  database:
+    container_name: database
+    image: library/postgres:13.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=main_db
+    restart: on-failure
+    ports:
+      - "5432:5432"
+    command: [ "postgres", "-c", "log_statement=all", "-c", "log_destination=stderr" ]
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres", "-d", "main_db" ]
+      interval: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - base_network
+
+volumes:
+  postgres-data:
+
+networks:
+  base_network:
+    driver: bridge
+    external: True
