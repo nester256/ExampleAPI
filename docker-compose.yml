@@ -35,6 +35,7 @@ services:
       context: .
 #    ports:
 #      - "8000:8000"
+
     command: scripts/startup.sh -m -l
     restart: on-failure
     env_file:
